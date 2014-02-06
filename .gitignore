@@ -1,5 +1,5 @@
 .bundle
-delivery/*
+#delivery/*
 !delivery/README.md
 !delivery/install.sh
 !delivery/update.sh
