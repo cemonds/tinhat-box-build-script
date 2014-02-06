@@ -58,7 +58,7 @@
 # apt-get install binfmt-support qemu qemu-user-static debootstrap kpartx lvm2 dosfstools
 
 deb_mirror="http://archive.raspbian.org/raspbian"
-deb_local_mirror="http://localhost:3142/archive.raspbian.org/raspbian"
+#deb_local_mirror="http://localhost:3142/archive.raspbian.org/raspbian"
 
 if [ ${EUID} -ne 0 ]; then
   echo "this tool must be run as root"
@@ -168,7 +168,7 @@ mount -o bind ${delivery_path} ${rootfs}/usr/src/delivery
 
 cd ${rootfs}
 
-debootstrap --foreign --arch armhf ${deb_release} ${rootfs} ${deb_local_mirror}
+debootstrap --no-check-gpg --foreign --arch armhf ${deb_release} ${rootfs} ${deb_local_mirror}
 cp /usr/bin/qemu-arm-static usr/bin/
 LANG=C chroot ${rootfs} /debootstrap/debootstrap --second-stage
 
@@ -206,14 +206,19 @@ rm -f /debconf.set
 
 cd /usr/src/delivery
 apt-get update
-apt-get -y install git-core binutils ca-certificates
+apt-get -y install git-core gcc binutils ca-certificates
 wget --continue https://raw.github.com/Hexxeh/rpi-update/master/rpi-update -O /usr/bin/rpi-update
 chmod +x /usr/bin/rpi-update
 mkdir -p /lib/modules/3.1.9+
 touch /boot/start.elf
 rpi-update
 
-apt-get -y install locales console-common ntp openssh-server less vim
+apt-get -y install locales console-common ntp openssh-server less vim python python-dev
+wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -O - | python
+cd /tmp
+wget https://raw.github.com/pypa/pip/1.4.1/contrib/get-pip.py
+python get-pip.py
+rm get-pip.py
 
 # execute install script at mounted external media (delivery contents folder)
 cd /usr/src/delivery
